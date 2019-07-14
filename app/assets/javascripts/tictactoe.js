@@ -1,6 +1,13 @@
-const WINNING_COMBOS = [[0,1,2], [3,4,5], [6,7,8], [0,3,6],
-                        [1,4,7], [2,5,8], [0,4,8], [2,4,6]];
-
+ const WIN_COMBINATIONS = [
+  [0,1,2],
+  [3,4,5],
+  [6,7,8],
+  [0,3,6],
+  [1,4,7],
+  [2,5,8],
+  [0,4,8],
+  [6,4,2]
+]
 
 var turn = 0;
 
@@ -29,23 +36,46 @@ function setMessage(string){
 
 function checkWinner(){
 
+WIN_COMBINATIONS.forEach(function(check){
+
+		
+});
+
+ // setMessage('Player X Won!');
+
+ // setMessage('Player Y Won!');
+
+
 
 }
+
+function position_taken(index){
+var square = window.document.querySelectorAll('td');
+
+   if (square[index]=== "X" || square[index] === "O"){
+   	return true; 
+   } else {
+   	return false;
+
+   	} 
+}
+ 
 
 function doTurn(){
 	turn++;
 }
 
 function clear(){
+
+var square = window.document.querySelectorAll('td');
+
  $("#clear").on("click", function() {	
-
- const square = window.document.querySelectorAll('td');
-
  for (let i = 0; i < 9; i++) {
     $(square[i]).text('');
-  }
+  } 
+ });
 
-  });
+
 }
 
 $(document).ready(function(){
