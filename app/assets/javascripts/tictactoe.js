@@ -10,6 +10,8 @@
 ]
 
 var turn = 0;
+var boardState = 0;
+
 
 function player(){
  return turn % 2  ?  'O' : 'X'; 	
@@ -17,14 +19,16 @@ function player(){
 
 
 function updateState(td){
-	var currentPlayer = player();
-	$(td).text(currentPlayer);
+	// var currentPlayer = player();
+	// $(td).text(currentPlayer);
 
-	// $('table tr td').on("click", function() {
-	// 	currentPlayer = player();
-	// 	$(this).text(currentPlayer);
-	// 	turn++;
-	// });
+		//need the below to test in web browser so far
+
+	$('table tr td').on("click", function() {
+		currentPlayer = player();
+		$(this).text(currentPlayer);
+		turn++;
+	});
 	
 }
 
@@ -71,22 +75,54 @@ function checkWinner(){
 }
 
 
-function doTurn(){
-	turn++;
+function doTurn(square){
+  
+  updateState();	
+  turn++; 	
+  var x = checkWinner();
+
+	if (x === true) { 
+	turn = 0;
+	
+	} else if ((x ===false) && (turn === 9)) {  
+	
+	setMessage("Tie game.");
+	
+	}
+
+	
 }
 
 function clear(){
 
-var square = window.document.querySelectorAll('td');
-
- $("#clear").on("click", function() {	
- for (let i = 0; i < 9; i++) {
-    $(square[i]).text('');
+$("#clear").on("click", function() {	
+ 
+  $('td').empty();
   } 
- });
+
+ );
+
+// var square = window.document.querySelectorAll('td');
+
+//  $("#clear").on("click", function() {	
+//  for (let i = 0; i < 9; i++) {
+//     $(square[i]).text('');
+//   } 
+//  });
 
 
 }
+
+
+function attachListeners() {
+  $('td').on('click', function() {
+    if (!$.text(this) && !checkWinner()) {
+      doTurn(this);
+    }
+  });
+
+}
+
 
 $(document).ready(function(){
 	updateState();
