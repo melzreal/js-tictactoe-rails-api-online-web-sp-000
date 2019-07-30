@@ -9,8 +9,8 @@
   [6,4,2]
 ]
 
-var turn = 0;
-var boardState = 0;
+ var turn = 0;
+
 
 
 function player(){
@@ -19,16 +19,17 @@ function player(){
 
 
 function updateState(td){
-	// var currentPlayer = player();
-	// $(td).text(currentPlayer);
-
+	var currentPlayer = player();
+	if (!$(td).text()){
+			$(td).text(currentPlayer);
+			turn++; 	
+	}
 		//need the below to test in web browser so far
-
-	$('table tr td').on("click", function() {
-		currentPlayer = player();
-		$(this).text(currentPlayer);
-		turn++;
-	});
+ // var currentPlayer = player();
+	// $('table tr td').on("click", function() {
+	// 	$(this).text(currentPlayer);
+	// 	turn++;
+	// });
 	
 }
 
@@ -38,9 +39,70 @@ function setMessage(string){
 
 function checkWinner(){
 
-	var squareAgain = window.document.querySelectorAll('td')
+	var squareAgain =  $('td');
+	//window.document.querySelectorAll('td');
 	var winner = "none";
+
 	var board = {
+	length: 0,
+    addElem: function addElem(el) {
+        [].push.call(this, el);
+    	}
+	};
+
+	//push elements to board nodelist
+	 for (var i = 0; i < squareAgain.length; i++) {
+	  board.addElem(squareAgain[i].innerHTML);
+	}
+
+	//check board for combinations of X or Y
+	for (let i = 0; i < WIN_COMBINATIONS.length; i++) {
+    const [a, b, c] = WIN_COMBINATIONS[i];
+
+    	if (board[a] && board[a] === board[b] && board[a] === board[c] && board[a] !=="") {
+     	 winner = board[a];
+		  if (winner === "O"){
+		 	setMessage('Player O Won!');
+   		 } else if (winner === "X"){ 
+		  setMessage('Player X Won!');
+		 } 
+
+		 return true;
+	 } 
+   } return false;
+
+}
+
+
+function doTurn(square){
+  
+  updateState(square);	
+  
+  var x = checkWinner();
+
+	if (x === true) { 
+	turn = 0;
+	$('td').empty();
+	
+	} else if (turn === 9) {  
+	
+	setMessage("Tie game.");
+	clearGame();
+	turn = 0;
+	}
+
+	
+}
+
+function clearGame(){
+ 
+  $('td').empty();
+
+}
+
+function saveGame(){
+
+var board = {
 	length: 0,
     addElem: function addElem(el) {
         [].push.call(this, el);
@@ -51,81 +113,24 @@ function checkWinner(){
   board.addElem(squareAgain[i].innerHTML);
 }
 
-	for (let i = 0; i < WIN_COMBINATIONS.length; i++) {
-    const [a, b, c] = WIN_COMBINATIONS[i];
-
-    	if (board[a] && board[a] === board[b] && board[a] === board[c] && board[a] !=="") {
-     	 winner = board[a];
-
-		  if (winner === "O"){
-		 	setMessage('Player O Won!');
-   		 } else if (winner === "X"){ 
-		  setMessage('Player X Won!');
-		 } 
-		 return true;
-	// 	console.log(winner);
- //        return true;
-	//  } else {
- //  	setMessage('Its a draw!'); 	
- //  	return false;
-
-	 	} 
-   } return false;
-
-}
-
-
-function doTurn(square){
-  
-  updateState();	
-  turn++; 	
-  var x = checkWinner();
-
-	if (x === true) { 
-	turn = 0;
-	
-	} else if ((x ===false) && (turn === 9)) {  
-	
-	setMessage("Tie game.");
-	
-	}
-
-	
-}
-
-function clear(){
-
-$("#clear").on("click", function() {	
- 
-  $('td').empty();
-  } 
-
- );
-
-// var square = window.document.querySelectorAll('td');
-
-//  $("#clear").on("click", function() {	
-//  for (let i = 0; i < 9; i++) {
-//     $(square[i]).text('');
-//   } 
-//  });
-
 
 }
 
 
 function attachListeners() {
-  $('td').on('click', function() {
-    if (!$.text(this) && !checkWinner()) {
-      doTurn(this);
-    }
+
+  $('td').on("click", function() {
+      doTurn(this); 
   });
+
+  $("#clear").on("click", clearGame());
 
 }
 
 
 $(document).ready(function(){
-	updateState();
-	clear();
+	attachListeners()
+	// updateState();
+	// clearGame();
 })
 
