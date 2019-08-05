@@ -9,9 +9,9 @@
   [6,4,2]
 ]
 
- var turn = 0;
+var turn = 0;
 
-
+var currentGameId = null;
 
 function player(){
  return turn % 2  ?  'O' : 'X'; 	
@@ -24,13 +24,7 @@ function updateState(td){
 			$(td).text(currentPlayer);
 			turn++; 	
 	}
-		//need the below to test in web browser so far
- // var currentPlayer = player();
-	// $('table tr td').on("click", function() {
-	// 	$(this).text(currentPlayer);
-	// 	turn++;
-	// });
-	
+
 }
 
 function setMessage(string){
@@ -40,7 +34,6 @@ function setMessage(string){
 function checkWinner(){
 
 	var squareAgain =  $('td');
-	//window.document.querySelectorAll('td');
 	var winner = "none";
 
 	var board = {
@@ -81,56 +74,125 @@ function doTurn(square){
   var x = checkWinner();
 
 	if (x === true) { 
-	turn = 0;
-	$('td').empty();
-	
+	saveGame();
+	clearGame();
+
 	} else if (turn === 9) {  
 	
 	setMessage("Tie game.");
+	saveGame();
 	clearGame();
-	turn = 0;
+	
 	}
 
 	
 }
 
 function clearGame(){
- 
   $('td').empty();
-
+  turn = 0;
+  currentGameId = null;
 }
 
-function saveGame(){
+// function saveGame(){
 
-var board = {
-	length: 0,
-    addElem: function addElem(el) {
-        [].push.call(this, el);
-    	}
-	};
 
- for (var i = 0; i < squareAgain.length; i++) {
-  board.addElem(squareAgain[i].innerHTML);
+// var squareAgain =  $('td');
+
+// //exercise to get boardstate again
+
+// var currentBoard = {
+// 	length: 0,
+//     addElem: function addElem(el) {
+//         [].push.call(this, el);
+//     	}
+// 	};
+
+// 	 for (var i = 0; i < squareAgain.length; i++) {
+// 	  currentBoard.addElem(squareAgain[i].innerHTML);
+// 	}
+
+
+// }
+
+
+function previousGame() {
+  $.get('/games', function(response) {
+    $('#games').html(response);
+    var allGames = "";
+    for (var i=0; i < response.data.length; i++) {
+      var game = response.data[i];
+      allGames += `<button onclick="loadGame(${game.id})">${game.id}</button>`;
+    }
+    $("#games").html(allGames);
+  });
 }
 
 
+function saveGame() {
+  var state = [];
+
+  $('td').text((index, square) => {
+    state.push(square);
+    return square;
+  });
+
+  var method = currentGameId ? 'PATCH' : 'POST';
+  var url = currentGameId ? `/games/${currentGameId}` : '/games';
+
+  $.ajax({
+    type: method,
+    data: {state: state},
+    url: url,
+    success: function(response) {
+      currentGameId = response.data.id;
+    }
+  });
 }
+
+
+
+function loadGame(id) {
+  $.get(`/games/${id}`, function(response) {
+    var game = response.data;
+    $('td').text((index, square) => game.attributes.state[index]);
+    currentGameId = game.id;
+    var tokens = game.attributes.state.filter(function(spot) {
+      return spot != "";
+    })
+    turn = tokens.length;
+  });
+}
+
 
 
 function attachListeners() {
+
 
   $('td').on("click", function() {
       doTurn(this); 
   });
 
-  $("#clear").on("click", clearGame());
+  $('#previous').on("click", function(){
+  	previousGame();
+  });
+
+  $('#clear').on("click", function(){
+  	clearGame();
+  });
+
+  $('#save').on("click", function(){
+  	saveGame();
+  });
+
 
 }
 
 
+
+
 $(document).ready(function(){
-	attachListeners()
-	// updateState();
-	// clearGame();
+	attachListeners();
+	
 })
 
